@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>放大镜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .xiao {
+            position: relative;
+            cursor: move;
+            margin: 50px;
+            width: 350px;
+        }
+
+        .xt {
+            width: 350px;
+            height: 350px;
+        }
+
+        .mc {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 230px;
+            height: 230px;
+            background-color: yellow;
+            opacity: 0.5;
+            display: none;
+        }
+
+        .da {
+            position: absolute;
+            top: 0;
+            left: 600px;
+            width: 500px;
+            height: 500px;
+            overflow: hidden;
+            display: none;
+        }
+        #fdj{
+            width: 1000px;
+            margin: 0 auto;
+        }
+        .dt{
+            width: 800px;
+            height: 800px;
+            position: absolute;
+            top:0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="" id="fdj">
+        <div class="xiao">
+            <img class="xt" src="../img/1.jpg" alt="">
+            <div class="mc"></div>
+        </div>
+        <div class="da">
+            <img class="dt" src="../img/2.jpg" alt="">
+        </div>
+    </div>
+
+    <script>
+        var xiao = document.querySelector(".xiao")
+        var xt = document.querySelector(".xt")
+        var dt = document.querySelector(".dt")
+        var mc = document.querySelector(".mc")
+        var da = document.querySelector(".da")
+        var xtwidth = xt.offsetWidth
+        var xtheight = xt.offsetHeight
+        var xiaotop = xiao.offsetTop
+        var xiaoleft = xiao.offsetLeft
+        
+        xiao.addEventListener("mouseover", function (e) {
+            mc.style.display = "block"
+            da.style.display = "block"
+            var mcwidth = mc.offsetWidth
+            var mcheight = mc.offsetHeight
+            var dtmovewidth = dt.offsetWidth - da.offsetWidth
+            console.log(dtmovewidth);
+            
+            mc.addEventListener("mousemove", function (e) {
+                var movex = e.pageX - (mcwidth / 2 + xiaoleft)
+                var movey = e.pageY - (mcheight / 2 + xiaotop)
+                var maxwidth = xtwidth - mcwidth
+                var maxSbmovex = mcwidth / 2 + xiaoleft + maxwidth
+                var minSbmovex = mcwidth/2 + xiaoleft
+                var maxSbmovey = mcheight / 2 + xiaotop + maxwidth
+                var minSbmovey = mcheight/2 + xiaotop
+                var dtmovex = movex/maxwidth*dtmovewidth
+                var dtmovey = movey/maxwidth*dtmovewidth
+                if(e.pageX <= minSbmovex){
+                    mc.style.left = 0
+                    mc.style.top = 0
+                    dt.style.top = 0
+                    dt.style.left = 0
+                }
+                if (e.pageX <= maxSbmovex && e.pageX >= minSbmovex) {
+                    mc.style.left = movex + "px"
+                    dt.style.left = -dtmovex + "px"
+                }
+                if(e.pageX >= maxSbmovex){
+                    mc.style.left = maxwidth + "px"
+                    dt.style.left = -dtmovewidth + "px"
+                }
+                if(e.pageY <= minSbmovey){
+                    mc.style.top = 0
+                    dt.style.top = 0
+                }
+                if (e.pageY <= maxSbmovey && e.pageY >= minSbmovey){
+                    mc.style.top = movey + "px"
+                    dt.style.top = -dtmovey + "px"
+                }
+                if(e.pageY >= maxSbmovey){
+                    mc.style.top = maxwidth + "px"
+                    dt.style.top = -dtmovewidth + "px"
+                }
+
+            })
+
+        })
+        xiao.addEventListener("mouseout", function () {
+            mc.style.display = "none"
+            da.style.display = "none"
+        })
+    </script>
+</body>
+
+</html>
