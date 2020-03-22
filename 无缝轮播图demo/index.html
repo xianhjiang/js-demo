@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无缝轮播图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        ul li {
+            list-style: none;
+        }
+
+        .animation {
+            transition: all .3s;
+        }
+
+        .lunbo {
+            position: relative;
+            width: 590px;
+            height: 470px;
+            margin: 100px auto;
+            overflow: hidden;
+        }
+
+        .lunbo .tp {
+            /* width: 400%; */
+            margin-left: -100%;
+        }
+
+        .lunbo .tp::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+
+        .lunbo .tp li {
+            float: left;
+        }
+
+        .lunbo .tp li a {
+            display: inline-block;
+        }
+
+        .lunbo .tp li a img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .anniu {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            margin: auto;
+            cursor: pointer;
+            /* background-color: crimson; */
+        }
+
+        .anniu a {
+            width: 25px;
+            height: 100%;
+            text-align: center;
+            line-height: 40px;
+            color: rgba(255, 255, 255, .8);
+            background-color: rgba(0, 0, 0, .15);
+        }
+
+        .anniu a:hover {
+            color: #fff;
+            background-color: rgba(0, 0, 0, .4);
+        }
+
+        .anniu .gt {
+            float: right;
+        }
+
+        .anniu .lt {
+            float: left;
+        }
+
+        .slider {
+            position: absolute;
+            height: 16px;
+            bottom: 30px;
+            left: 30px;
+        }
+
+        .slider li {
+            position: relative;
+            float: left;
+            width: 8px;
+            height: 8px;
+            margin: 4px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, .05);
+            background-color: rgba(255, 255, 255, .4);
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .slider li:hover {
+            border: 4px solid rgba(0, 0, 0, .01);
+            width: 10px;
+            height: 10px;
+            margin: 0;
+            top: -1px
+        }
+
+        .slider li:hover::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            left: 0;
+            top: 0;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+
+        .slider li.active {
+            border: 4px solid rgba(0, 0, 0, .01);
+            width: 10px;
+            height: 10px;
+            margin: 0;
+        }
+
+        .slider li.active::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            left: 0;
+            top: 0;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lunbo">
+        <ul class="tp">
+            <li><a href="javascript:;"><img src="./img/1.webp" alt=""></a></li>
+            <li><a href="javascript:;"><img src="./img/2.webp" alt=""></a></li>
+            <li><a href="javascript:;"><img src="./img/3.webp" alt=""></a></li>
+            <li><a href="javascript:;"><img src="./img/4.webp" alt=""></a></li>
+            <li><a href="javascript:;"><img src="./img/5.webp" alt=""></a></li>
+        </ul>
+        <div class="anniu">
+            <a class="gt" href="javascript:;">&gt</a>
+            <a class="lt" href="javascript:;">&lt</a>
+        </div>
+        <ul class="slider">
+        </ul>
+
+    </div>
+
+    <script>
+        var lunbo = document.querySelector(".lunbo")
+        var tp = document.querySelector(".tp")
+        var tpWidth = lunbo.offsetWidth
+        var gt = document.querySelector(".gt")
+        var lt = document.querySelector(".lt")
+        var slider = document.querySelector(".slider")
+        var tplength = tp.children.length
+        for (let i = 0; i < tplength; i++) {
+            var li = document.createElement("li")
+            li.index = i
+            slider.appendChild(li)
+        }
+        var tpprev = tp.children[tplength - 1].cloneNode(true)
+        var tplast = tp.children[0].cloneNode(true)
+        tp.appendChild(tplast)
+        tp.insertBefore(tpprev, tp.children[0])
+        tp.style.width = tp.children.length * tpWidth + "px"
+        var lbIndex = 1
+        var flag = true
+        var sliderIndex = 0
+        slider.children[0].classList.add("active")
+        gt.addEventListener("click", function () {
+            if (flag) {
+                lbIndex++
+                sliderIndex++
+                var marginLeft = lbIndex * tpWidth
+                tp.classList.add("animation")
+                tp.style.marginLeft = -marginLeft + "px"
+            }
+
+            if (sliderIndex == tplength) {
+                sliderIndex = 0
+            }
+            for (let i = 0; i < tplength; i++) {
+                slider.children[i].classList.remove("active")
+            }
+            slider.children[sliderIndex].classList.add("active")
+            flag = false
+            //此移出方法 并不管用
+            // tp.removeEventListener("transitionend",function(){
+            //     console.log(555);
+            // })
+        })
+        tp.addEventListener("transitionend", function () {
+            // var width = tp.children.length*tpWidth
+            // tp.setAttribute("style","transition:none;width:"+width+"px")
+            if (lbIndex == tplength + 1) {
+                tp.classList.remove("animation")
+                tp.style.marginLeft = -tpWidth + "px"
+                lbIndex = 1
+            }
+            if (lbIndex == 0) {
+                tp.classList.remove("animation")
+                tp.style.marginLeft = -tpWidth * tplength + "px"
+                lbIndex = tplength
+            }
+            flag = true
+        })
+
+        lt.addEventListener("click", function () {
+            if (flag) {
+                lbIndex--
+                sliderIndex--
+                var marginLeft = lbIndex * tpWidth
+                tp.classList.add("animation")
+                tp.style.marginLeft = -marginLeft + "px"
+            }
+
+            if (sliderIndex == -1) {
+                sliderIndex = tplength - 1
+            }
+            for (let i = 0; i < tplength; i++) {
+                slider.children[i].classList.remove("active")
+            }
+            slider.children[sliderIndex].classList.add("active")
+
+            flag = false
+        })
+        for (let i = 0; i < tplength; i++) {
+            slider.children[i].addEventListener("click", function () {
+                tp.classList.add("animation")
+                var index = slider.children[i].index + 1
+                if (index > tplength + 1) {
+                    index = 1
+                }
+
+                for (let i = 0; i < tplength; i++) {
+                    slider.children[i].classList.remove("active")
+                }
+                slider.children[index - 1].classList.add("active")
+                lbIndex = index
+                sliderIndex = index - 1
+                var marginLeft = index * tpWidth
+                tp.style.marginLeft = -marginLeft + "px"
+            })
+        }
+        var timer = setInterval(function () {
+            gt.click()
+        }, 2000)
+        lunbo.addEventListener("mouseover", function () {
+            clearInterval(timer)
+        })
+        lunbo.addEventListener("mouseout", function () {
+            timer = setInterval(function () {
+                gt.click()
+            }, 2000)
+        })
+    </script>
+</body>
+
+</html>
