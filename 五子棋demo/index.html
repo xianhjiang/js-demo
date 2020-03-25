@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋小游戏</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .info {
+            width: 500px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .game {
+            position: relative;
+            width: 640px;
+            height: 640px;
+            background-image: url("./img/cross.png"), url("./img/bak.jpg");
+            margin: 0 auto;
+        }
+
+        .reset {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .chess {
+            width: 36px;
+            height: 36px;
+            position: absolute;
+        }
+
+        .black {
+            background-image: url("./img/black.png");
+        }
+
+        .white {
+            background-image: url("./img/white.png");
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="info">轮到黑棋</h1>
+    <div class="game"></div>
+    <p class="reset">
+        <input type="button" value="重新开始">
+    </p>
+    <script>
+        var config = {
+            rows: 16,
+            cols: 16,
+            splitSize: 40,
+            info:document.querySelector(".info"),
+            game: document.querySelector(".game"),
+            reset: document.querySelector(".reset")
+        }
+        var board //棋盘
+        var nextChess = 1 //下一个棋子的类型
+        var isover = false
+        //初始化棋盘
+        init()
+        //添加事件
+        regEvent()
+        // 0表示棋盘没有棋子 1表示为黑棋 2表示为白棋
+        function init() {
+            board = new Array(config.rows)
+            for (let i = 0; i < board.length; i++) {
+                board[i] = new Array(config.cols)
+                board[i].fill(0); //fill是数组的方法，用于将数组的每一项填充为某个值
+            }
+            config.game.innerHTML = ""
+            nextChess = 1
+            config.info.innerHTML = "轮到黑棋"
+            regEvent()
+            isover = false
+
+        }
+        function gameClick(e) {
+                // if (e.target.className !== "game") {
+                //     return
+                // }
+                if (e.target.classList.contains("chess")) {
+                    //如果鼠标点击的dom，类样式中包含了chess，则表示，你点击的是棋子
+                    //不做任何操作
+                    return;
+                }
+
+                var x = e.offsetX - 20
+                var y = e.offsetY - 20
+
+                var col = Math.round(x / config.splitSize)
+                var row = Math.round(y / config.splitSize)
+
+                putChess(row, col)
+            }
+        function regEvent() {
+            config.game.addEventListener("click",gameClick)
+            config.reset.addEventListener("click", function () {
+                init()
+            })
+        }
+
+        function putChess(row, col) {
+            if (row < 0 || col < 0 || row > config.rows || col > config.cols) {
+                return
+            }
+            if (board[row][col]) {
+                return
+            }
+            board[row][col] = nextChess
+            var left = col * config.splitSize
+            var top = row * config.splitSize
+            var div = document.createElement("div")
+            div.className = "chess " + (nextChess == 1 ? "black" : "white")
+            config.game.appendChild(div)
+            div.style.left = left + "px"
+            div.style.top = top + "px"
+            if (nextChess == 1) {
+                nextChess = 2
+                config.info.innerHTML = "轮到白棋"
+            } else {
+                nextChess = 1
+                config.info.innerHTML = "轮到黑棋"
+            }
+            //判断输赢
+            hasWin(row,col)
+            if(isover){
+                showWhoWin()
+                config.game.removeEventListener("click",gameClick)
+                
+            }
+        }
+        
+        /**
+         * 是否有人胜利了
+         * 传递的参数：落子的行和列
+         */
+        function hasWin(row,col){
+            //横向是否有五子相连
+            var line = 1
+            var i = col
+            while(getChess(row,i-1) == getChess(row,col)){
+                i--
+                line++
+            }
+            i = col
+            while(getChess(row,i+1) == getChess(row,col)){
+                i++
+                line++
+            }
+            if(line >= 5){
+               return isover = true
+            }
+            //纵向是否有五子相连
+            line = 1
+            i = row
+            while(getChess(i-1,col) == getChess(row,col)){
+                i--
+                line++
+            }
+            i = row
+            while(getChess(i+1,col) == getChess(row,col)){
+                i++
+                line++
+            }
+            if(line >= 5){
+                return isover = true
+            }
+            //正斜线是否有五子相连
+            line = 1
+            var j = col 
+            i = row
+            while(getChess(i-1,j-1) == getChess(row,col)){
+                i--
+                j--
+                line++
+            }
+            i = row
+            j = col
+            while(getChess(i+1,j+1) == getChess(row,col)){
+                i++
+                j++
+                line++
+            }
+            if(line >= 5){
+                return isover = true
+            }
+            //反斜线是否有五子相连
+            line = 1
+            j = col 
+            i = row
+            while(getChess(i-1,j+1) == getChess(row,col)){
+                i--
+                j++
+                line++
+            }
+            i = row
+            j = col
+            while(getChess(i+1,j-1) == getChess(row,col)){
+                i++
+                j--
+                line++
+            }
+            if(line >= 5){
+               return isover = true
+            }
+            
+        }
+
+        //获取棋子的类型
+       function getChess(row,col){
+           if(board[row] == undefined){
+               return //没有这一行
+           }else if(board[row][col] == undefined){
+               return //没有这一列
+           }
+           return board[row][col]
+       }
+       //谁赢了
+       function showWhoWin(){
+           if(nextChess == 1){
+               config.info.innerHTML = "游戏结束 白棋获胜"
+           }
+           else{
+            config.info.innerHTML = "游戏结束 黑棋获胜"
+           }
+           
+       }
+    </script>
+</body>
+
+</html>
